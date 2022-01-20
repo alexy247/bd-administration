@@ -16,30 +16,38 @@ BEGIN
     DECLARE @time nvarchar(200)
     SET @time = FORMAT(CURRENT_TIMESTAMP, N'dd-mm-yyyyTHH.mm.ss')
 
-	DECLARE @full_path nvarchar(200), @dateRegLen BIGINT, @isFull BIT
+	DECLARE @full_path nvarchar(200), @dateRegLen BIGINT, @lastVersion NVARCHAR(4), @isFull BIT
 	SET @full_path = @path + '\'+ @time + '_' + @dataBase 
-    SET @dateRegLen = LEN(@time)
+	SET @dateRegLen = LEN(@time)
 
+	-- Изучаем файлы в @path, чтобы определить, какую из копий надо делать (full/diff)
+	IF OBJECT_ID('tempdb..#BackupDirectoryTree') IS NOT NULL
+	DROP TABLE #BackupDirectoryTree;
 
-    -- Изучаем файлы в @path, чтобы определить, какую из копий надо делать (full/diff)
-    IF OBJECT_ID(@dataBase.#DirectoryTree)IS NOT NULL
-      DROP TABLE #DirectoryTree;
-    CREATE TABLE #DirectoryTree (
-        id int IDENTITY(1,1)
-        ,subdirectory nvarchar(512)
-        ,depth int
-        ,isfile bit);
+	CREATE TABLE #BackupDirectoryTree (
+		id int IDENTITY(1,1)
+		,subdirectory nvarchar(512)
+		,depth int
+		,isfile bit);
     
-    INSERT #DirectoryTree(subdirectory,depth,isfile)
-    EXEC master.sys.xp_dirtree @path,1,1;
+	INSERT #BackupDirectoryTree(subdirectory,depth,isfile)
+	EXEC master.sys.xp_dirtree @path,1,1;
     
-    -- RIGHT(subdirectory, 14) = '_full-copy.bak' AS 'is_full' 
-    SELECT *, SUBSTRING(@dateRegLen, 1, @dateRegLen) AS 'date' FROM #DirectoryTree
-    WHERE isfile = 1 AND
-        RIGHT(subdirectory,4) = '.bak' AND
-        CHARINDEX(@dataBase, subdirectory) > 0
-    ORDER BY 'date';
-    GO
+	SELECT @lastVersion = 'version'
+	FROM (
+		SELECT TOP(1) *, SUBSTRING(subdirectory, 1, @dateRegLen) AS 'date',
+		SUBSTRING(RIGHT(subdirectory, 13), 1, 4) AS 'version' 
+		FROM #BackupDirectoryTree
+		WHERE isfile = 1 AND
+			RIGHT(subdirectory,4) = '.bak' AND
+			CHARINDEX(@dataBase, subdirectory) > 0
+		ORDER BY 'date' DESC
+		) last;
+	IF @lastVersion IS NULL OR @lastVersion = 'full'
+	SET @isFull = 1
+	ELSE
+	SET @isFull = 0;
+	PRINT(@isFull)
 	IF @isFull = 0
 		BEGIN
 		SET @full_path = @full_path + '_diff-copy.bak'
