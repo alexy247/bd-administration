@@ -11,12 +11,9 @@ CREATE PROCEDURE CreateBackup
     @dataBase NVARCHAR(100)
 AS
 BEGIN
-    DECLARE @path NVARCHAR(100)
+    DECLARE @path NVARCHAR(100), @time nvarchar(200), @full_path nvarchar(200), @dateRegLen BIGINT, @lastVersion NVARCHAR(4), @isFull BIT
     SET @path = 'C:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\Backup'
-    DECLARE @time nvarchar(200)
     SET @time = FORMAT(CURRENT_TIMESTAMP, N'dd-mm-yyyyTHH.mm.ss')
-
-	DECLARE @full_path nvarchar(200), @dateRegLen BIGINT, @lastVersion NVARCHAR(4), @isFull BIT
 	SET @full_path = @path + '\'+ @time + '_' + @dataBase 
 	SET @dateRegLen = LEN(@time)
 

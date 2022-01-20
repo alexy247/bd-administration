@@ -9,3 +9,4 @@ BD-tasks of Master's (3 semester) using MS SQL database PaymentData from previou
 - [Error num 3002](https://docs.microsoft.com/ru-ru/previous-versions/sql/sql-server-2008-r2/cc645601(v=sql.105)?redirectedfrom=MSDN)
 - [Files and filegroups](https://docs.microsoft.com/ru-ru/sql/relational-databases/databases/database-files-and-filegroups?view=sql-server-ver15)
 - [Xp_dirtree how to use](https://www.patrickkeisler.com/2012/11/how-to-use-xpdirtree-to-list-all-files.html)
+- [SUBSTRING](https://docs.microsoft.com/ru-ru/sql/t-sql/functions/substring-transact-sql?view=sql-server-ver15)
