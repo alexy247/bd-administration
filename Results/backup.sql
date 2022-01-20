@@ -16,8 +16,10 @@ BEGIN
     DECLARE @time nvarchar(200)
     SET @time = FORMAT(CURRENT_TIMESTAMP, N'dd-mm-yyyyTHH.mm.ss')
 
-	DECLARE @full_path nvarchar(200), @isFull BIT
-	SET @full_path = @path + '\' + @dataBase + '_' + @time
+	DECLARE @full_path nvarchar(200), @dateRegLen BIGINT, @isFull BIT
+	SET @full_path = @path + '\'+ @time + '_' + @dataBase 
+    SET @dateRegLen = LEN(@time)
+
 
     -- Изучаем файлы в @path, чтобы определить, какую из копий надо делать (full/diff)
     IF OBJECT_ID(@dataBase.#DirectoryTree)IS NOT NULL
@@ -31,17 +33,16 @@ BEGIN
     INSERT #DirectoryTree(subdirectory,depth,isfile)
     EXEC master.sys.xp_dirtree @path,1,1;
     
-    SELECT * FROM #DirectoryTree
+    -- RIGHT(subdirectory, 14) = '_full-copy.bak' AS 'is_full' 
+    SELECT *, SUBSTRING(@dateRegLen, 1, @dateRegLen) AS 'date' FROM #DirectoryTree
     WHERE isfile = 1 AND
         RIGHT(subdirectory,4) = '.bak' AND
-        CHARINDEX(@dataBase, subdirectory) > 0 AND
         CHARINDEX(@dataBase, subdirectory) > 0
-    ORDER BY subdirectory;
+    ORDER BY 'date';
     GO
-
 	IF @isFull = 0
 		BEGIN
-		SET @full_path = @full_path + 'diff-copy.bak'
+		SET @full_path = @full_path + '_diff-copy.bak'
 		BACKUP DATABASE @dataBase
 		TO
 		DISK = @full_path
