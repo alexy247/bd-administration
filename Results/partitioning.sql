@@ -7,41 +7,52 @@
 2) применение кластерного индекса
 */
 
-CREATE PROCEDURE ApartTable
-@dataBase NVARCHAR(100)
+ALTER DATABASE PaymentData
+ADD FILEGROUP fileGroup1;
+ALTER DATABASE PaymentData
+ADD FILEGROUP fileGroup2;
+ALTER DATABASE PaymentData
+ADD FILEGROUP fileGroup3;
+
+ALTER DATABASE PaymentData
+ADD FILE
+(
+NAME = file1,
+FILENAME = 'C:\Users\alyon\bd-administration\Results\fileGroup1.ndf'
+) TO FILEGROUP fileGroup1;
+
+ALTER DATABASE PaymentData
+ADD FILE
+(
+NAME = file2,
+FILENAME = 'C:\Users\alyon\bd-administration\Results\fileGroup2.ndf'
+) TO FILEGROUP fileGroup2;
+
+ALTER DATABASE PaymentData
+ADD FILE
+(
+NAME = file3,
+FILENAME = 'C:\Users\alyon\bd-administration\Results\fileGroup3.ndf'
+) TO FILEGROUP fileGroup3;
+
+CREATE PARTITION FUNCTION CreatePartitionFunction(NVARCHAR(100))
 AS
-BEGIN
-	ALTER DATABASE @dataBase
-	ADD FILEGROUP fileGroup1
-	ALTER DATABASE @dataBase
-	ADD FILEGROUP fileGroup2
+RANGE LEFT
+FOR VALUES ('A', 'P')
 
-	ALTER DATABASE @dataBase
-	ADD FILE
-	(
-	NAME = fileGroup1,
-	FILENAME = 'C:\Users\alyon\bd-administration\Results\fileGroup1.ndf'
-	) TO FILEGROUP group1;
+CREATE PARTITION SCHEME CreatePartitionScheme
+AS PARTITION CreatePartitionFunction
+TO (fileGroup1, fileGroup2, fileGroup3)
 
-	ALTER DATABASE @dataBase
-	ADD FILE
-	(
-	NAME = fileGroup2,
-	FILENAME = 'C:\Users\alyon\bd-administration\Results\fileGroup2.ndf'
-	) TO FILEGROUP group2;
+CREATE TABLE temp_table (
+	Oid UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+	FirstName NVARCHAR(100) NULL,
+	SecondName NVARCHAR(100) NULL,
+	Phone NVARCHAR(100) NULL
 
-	CREATE PARTITION FUNCTION CreatePartitionFunction(bit)
-	AS
-	RANGE LEFT
-	FOR VALUES (0)
+)
+ON CreatePartitionScheme(FirstName);
 
-	CREATE PARTITION SCHEME CreatePartitionScheme
-	AS PARTITION CreatePartitionFunction
-	TO (group1, group2)
-
-	CREATE TABLE temp_table (id int, text_field text, part_id bit)
-	ON CreatePartitionScheme(part_id);
-	INSERT INTO temp_table SELECT * FROM Table_task3;
-	DROP TABLE Table_task3;
-	EXEC sp_rename temp_table, Table_task3;
-END
+INSERT INTO temp_table SELECT * FROM Client;
+DROP TABLE Client;
+EXEC sp_rename temp_table, Client;

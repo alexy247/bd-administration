@@ -10,3 +10,4 @@ BD-tasks of Master's (3 semester) using MS SQL database PaymentData from previou
 - [Files and filegroups](https://docs.microsoft.com/ru-ru/sql/relational-databases/databases/database-files-and-filegroups?view=sql-server-ver15)
 - [Xp_dirtree how to use](https://www.patrickkeisler.com/2012/11/how-to-use-xpdirtree-to-list-all-files.html)
 - [SUBSTRING](https://docs.microsoft.com/ru-ru/sql/t-sql/functions/substring-transact-sql?view=sql-server-ver15)
+- [3159 Err with restore](https://docs.microsoft.com/ru-ru/sql/relational-databases/errors-events/mssqlserver-3159-database-engine-error?view=sql-server-ver15)
