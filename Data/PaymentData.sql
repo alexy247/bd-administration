@@ -1,4 +1,4 @@
-USE db;
+CREATE DATABASE PaymentData;
 
 go
 IF (select DB_NAME()) <> N'master' SET NOEXEC ON

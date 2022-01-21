@@ -1,16 +1,24 @@
 USE PaymentData;
-DROP TABLE OrdersPartioned;
+
+DROP TABLE temp_table;
+
 ALTER DATABASE PaymentData  
-REMOVE FILE file1;
+REMOVE FILE f1;
 ALTER DATABASE PaymentData  
-REMOVE FILE file2;
+REMOVE FILE f2;
 ALTER DATABASE PaymentData  
-REMOVE FILE file3;
+REMOVE FILE f3;
+USE PaymentData;
+GO
 DROP PARTITION SCHEME CreatePartitionScheme;
+GO
+USE PaymentData;
+GO
 DROP PARTITION FUNCTION CreatePartitionFunction;
+GO
 ALTER DATABASE PaymentData  
 REMOVE FILEGROUP fileGroup1;
 ALTER DATABASE PaymentData  
 REMOVE FILEGROUP fileGroup2;
 ALTER DATABASE PaymentData  
-REMOVE FILEGROUP fileGroup2;
+REMOVE FILEGROUP fileGroup3;
