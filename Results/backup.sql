@@ -30,7 +30,7 @@ BEGIN
 	INSERT #BackupDirectoryTree(subdirectory,depth,isfile)
 	EXEC master.sys.xp_dirtree @path,1,1;
     
-	SELECT @lastVersion = 'version'
+	SELECT @lastVersion = version
 	FROM (
 		SELECT TOP(1) *, SUBSTRING(subdirectory, 1, @dateRegLen) AS 'date',
 		SUBSTRING(RIGHT(subdirectory, 13), 1, 4) AS 'version' 
@@ -40,11 +40,11 @@ BEGIN
 			CHARINDEX(@dataBase, subdirectory) > 0
 		ORDER BY 'date' DESC
 		) last;
-	IF @lastVersion IS NULL OR @lastVersion = 'full'
+	IF @lastVersion IS NULL
 	SET @isFull = 1
 	ELSE
 	SET @isFull = 0;
-	PRINT(@isFull)
+
 	IF @isFull = 0
 		BEGIN
 		SET @full_path = @full_path + '_diff-copy.bak'
@@ -61,4 +61,5 @@ BEGIN
 		DISK = @full_path
 		WITH INIT;
 		END
+	SELECT @isFull;
 END
